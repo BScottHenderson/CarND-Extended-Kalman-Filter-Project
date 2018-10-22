@@ -1,5 +1,7 @@
+#include <iostream>
 #include "kalman_filter.h"
 
+using namespace std;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
@@ -35,17 +37,12 @@ void KalmanFilter::Update(const VectorXd &z) {
   TODO:
     * update the state by using Kalman Filter equations
   */
-  VectorXd  y = z - (H_ * x_);  // error
-  MatrixXd  Ht = H_.transpose();
-  MatrixXd  S = H_ * P_ * Ht + R_;
-  MatrixXd  Si = S.inverse();
-  MatrixXd  K = P_ * Ht * Si;   // Kalman gain
 
-  // new state
-  x_ = x_ + (K * y);
-  long  x_size = (long) x_.size();
-  MatrixXd I = MatrixXd::Identity(x_size, x_size);
-  P_ = (I - (K * H_)) * P_;
+  // Calculate error term, y
+  VectorXd  z_pred = H_ * x_;
+  VectorXd  y = z - z_pred;
+
+  UpdateHelper(y);
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
@@ -54,36 +51,40 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
     * update the state by using Extended Kalman Filter equations
   */
 
-  //VectorXd z_pred = H_ * x_;
-
-  double  p_x = x_(0);
-  double  p_y = x_(1);
-  double  v_x = x_(2);
-  double  v_y = x_(3);
+  double  p_x = x_[0];
+  double  p_y = x_[1];
+  double  v_x = x_[2];
+  double  v_y = x_[3];
 
   double  rho = sqrt(p_x * p_x + p_y * p_y);
-  double  phi = atan(p_y / p_x);
-  if (phi > 0.0)  // Normalize phi to the range [-pi, pi]
-    while (phi > M_PI) phi -= (2 * M_PI);
-  else
-    while (phi < -M_PI) phi += (2 * M_PI);
-  double  rho_dot = 0.0;
-  if (fabs(rho) >= 0.0001)  // Avoid dividsion by zero
-    rho_dot = (p_x * v_x + p_y * v_y) / rho;
+  double  phi = atan2(p_y, p_x);
+  if (rho < 0.0001) // Avoid division by zero.
+    rho = 0.0001;
+  double  rho_dot = (p_x * v_x + p_y * v_y) / rho;
 
-  VectorXd z_pred = VectorXd(3);
+  VectorXd z_pred = VectorXd(3);  // h(x)
   z_pred << rho, phi, rho_dot;
+
+  // Error term, y
   VectorXd y = z - z_pred;
 
-  // H_ has already been set to the Jacobian calculated based on
-  // the current prediction, x_ (see the calling function).
+  // Normalize phi to the range [-pi, pi]
+  if (y[1] > 0.0)
+    while (y[1] > M_PI) y[1] -= (2 * M_PI);
+  else
+    while (y[1] < -M_PI) y[1] += (2 * M_PI);
+
+  UpdateHelper(y);
+}
+
+void KalmanFilter::UpdateHelper(const VectorXd &y) {
 
   MatrixXd Ht = H_.transpose();
   MatrixXd S = H_ * P_ * Ht + R_;
   MatrixXd Si = S.inverse();
   MatrixXd K = P_ * Ht * Si;  // Kalman gain
 
-  //new estimate
+  // new estimate
   x_ = x_ + (K * y);
   long  x_size = (long) x_.size();
   MatrixXd I = MatrixXd::Identity(x_size, x_size);
