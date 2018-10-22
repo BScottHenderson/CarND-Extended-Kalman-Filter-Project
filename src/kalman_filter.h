@@ -64,6 +64,10 @@ public:
    */
   void UpdateEKF(const Eigen::VectorXd &z);
 
+  /**
+   * Update helper function for common code.
+   */
+  void UpdateHelper(const Eigen::VectorXd &y);
 };
 
 #endif /* KALMAN_FILTER_H_ */
