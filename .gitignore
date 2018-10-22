@@ -27,4 +27,4 @@ ide_profiles/xcode/ExtendedKF.build/
 .vs/
 
 # compiler output
-build/
+products/
