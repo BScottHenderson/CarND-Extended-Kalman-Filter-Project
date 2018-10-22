@@ -22,3 +22,9 @@ xcuserdata/
 *.xcscmblueprint
 ide_profiles/xcode/Debug/
 ide_profiles/xcode/ExtendedKF.build/
+
+# Visual Studio
+.vs/
+
+# compiler output
+build/
