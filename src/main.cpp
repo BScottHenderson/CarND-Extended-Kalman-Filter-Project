@@ -38,6 +38,8 @@ int main()
   vector<VectorXd> estimations;
   vector<VectorXd> ground_truth;
 
+  cout << "rmse_x,rmse_y,rmse_vx,rmse_vy" << endl;
+
   h.onMessage([&fusionEKF,&tools,&estimations,&ground_truth](uWS::WebSocket<uWS::SERVER>* ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -124,6 +126,8 @@ int main()
 
           VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
 
+          cout << RMSE(0) << "," << RMSE(1) << "," << RMSE(2) << "," << RMSE(3) << endl;
+
           json msgJson;
           msgJson["estimate_x"] = p_x;
           msgJson["estimate_y"] = p_y;
@@ -161,8 +165,8 @@ int main()
   });
 
   h.onDisconnection([&h](uWS::WebSocket<uWS::SERVER>* ws, int code, char *message, size_t length) {
-      ws->close();
-      std::cout << "Disconnected" << std::endl;
+    ws->close();
+    std::cout << "Disconnected" << std::endl;
   });
 
   int port = 4567;
