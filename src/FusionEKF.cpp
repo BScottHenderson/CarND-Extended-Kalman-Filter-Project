@@ -173,7 +173,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      * Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
    */
 
-  cout << "step: " << ++current_step_ << endl;
+  //cout << "step: " << ++current_step_ << endl;
 
   // Calculate elapsed time in seconds.
   float dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0F;
@@ -218,6 +218,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   }
 
   // print the output
-  cout << "x_ = " << endl << ekf_.x_ << endl;
-  cout << "P_ = " << endl << ekf_.P_ << endl;
+  //cout << "x_ = " << endl << ekf_.x_ << endl;
+  //cout << "P_ = " << endl << ekf_.P_ << endl;
 }
